@@ -6,13 +6,14 @@ from app.models.user import User
 from app.schemas.auth import LoginSchema
 from app.core.security import verify_password
 from app.core.jwt import create_access_token
+from fastapi.security import OAuth2PasswordRequestForm
 
 router =APIRouter(prefix="/auth",tags=["Auth"])
 
 @router.post("/login")
-def login(data: LoginSchema, db: Session = Depends(get_db)):
+def login(data:OAuth2PasswordRequestForm = Depends() , db: Session = Depends(get_db)):
 
-    user = db.query(User).filter(User.email == data.email).first()
+    user = db.query(User).filter(User.email == data.username).first()
 
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")

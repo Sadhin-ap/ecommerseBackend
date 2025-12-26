@@ -6,6 +6,8 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserRead
 
+from app.deps import get_logged_user
+
 router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.post("/", response_model=UserRead)
@@ -18,8 +20,10 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     new_user = User(
         name=user.name,
         email=user.email,
-        password=hash_password(user.password)
-    )
+        password=hash_password(user.password),
+        is_admin=False   
+)
+
 
     db.add(new_user)
     db.commit()
@@ -42,5 +46,15 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
 
     return user
+
+@router.get("/me")
+def read_me(current_user = Depends(get_logged_user)):
+    return{
+        "id":current_user.id,
+        "name":current_user.name,
+        "email":current_user.email,
+        "is_admin":current_user.is_admin
+    }
+
 
 
