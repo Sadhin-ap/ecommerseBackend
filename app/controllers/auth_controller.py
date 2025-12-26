@@ -20,10 +20,12 @@ def login(data: LoginSchema, db: Session = Depends(get_db)):
     if not verify_password(data.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    token = create_access_token({"sub": str(user.id)})
+    token = create_access_token(
+        data={"sub":user.email}
+    )
 
 
     return {
-        "message": "Login successful",
-        "user_id": user.id
+        "access_token":token,
+        "token_type":"bearer"
     }
