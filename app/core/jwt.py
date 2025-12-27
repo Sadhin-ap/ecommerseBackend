@@ -8,6 +8,10 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
+from datetime import timedelta
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS =7
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -18,6 +22,12 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     )
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def create_refresh_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow()+timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp":expire})
+    return jwt.encode(to_encode,SECRET_KEY,algorithm=ALGORITHM)
 
 def get_current_user(
         token: str = Depends(oauth2_scheme),
@@ -43,6 +53,20 @@ def get_current_user(
         raise credentials_exception
     
     return user
+
+from jose import jwt, JWTError
+from fastapi import HTTPException, status
+
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
+
 
 
 
