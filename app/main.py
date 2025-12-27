@@ -12,20 +12,3 @@ app.include_router(admin_router)
 Base.metadata.create_all(bind=engine)
 
 
-# @app.get("/")
-# def home():
-#     return {"message": "Database & User table ready"}
-
-
-
-
-# @app.get("/test-schema")
-# def test_schema():
-#     fake_user = UserRead(
-#         id=1,
-#         name="Sadhin",
-#         email="sadhin@example.com",
-#         is_active=True,
-#         is_admin=False
-#     )
-#     return fake_user
