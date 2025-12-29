@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.cart import Cart
-from app.schemas.cart import CartCreate, CartRead
+from app.schemas.cart import CartCreate, CartRead,CartUpdate
 from app.deps import get_logged_user
 
 router = APIRouter(prefix="/cart", tags=["Cart"])
@@ -62,4 +62,27 @@ def remove_from_cart(
     db.delete(cart_item)
     db.commit()
     return {"message": "Item removed from cart"}
+
+@router.put("/{cart_id}")
+def edit_cart(
+    cart_id: int,
+    data: CartUpdate,
+    db: Session = Depends(get_db)
+):
+    cart = db.query(Cart).filter(Cart.id == cart_id).first()
+
+    if not cart:
+        raise HTTPException(status_code=404, detail="Cart item not found")
+
+    # quantity = 0 → remove item
+    if data.quantity <= 0:
+        db.delete(cart)
+        db.commit()
+        return {"message": "Item removed from cart"}
+
+    cart.quantity = data.quantity
+    db.commit()
+    db.refresh(cart)
+
+    return cart
 

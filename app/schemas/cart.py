@@ -8,6 +8,9 @@ class CartBase(BaseModel):
 class CartCreate(CartBase):
     pass
 
+class CartUpdate(BaseModel):
+    quantity:int
+
 
 class CartRead(CartBase):
     id: int
