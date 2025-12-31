@@ -18,3 +18,13 @@ class CartRead(CartBase):
 
     class Config:
         from_attributes = True
+
+
+class CartItemRead(BaseModel):
+    id: int
+    product_id: int
+    product_name: str
+    price: float
+    quantity: int
+    subtotal: float
+
